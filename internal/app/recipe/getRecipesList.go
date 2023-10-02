@@ -6,6 +6,6 @@ import (
 )
 
 func GetRecipesList(ctx *gin.Context) {
-	//ctx.String(http.StatusOK, "List of recipes")
+
 	ctx.String(http.StatusOK, "List of recipes")
 }
