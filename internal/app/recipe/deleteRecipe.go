@@ -6,5 +6,5 @@ import (
 )
 
 func DeleteRecipe(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "Recipe added")
+	ctx.String(http.StatusOK, "Recipe was deleted")
 }

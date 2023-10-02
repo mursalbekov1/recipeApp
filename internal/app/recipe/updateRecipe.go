@@ -6,5 +6,5 @@ import (
 )
 
 func UpdateRecipe(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "Recipe added")
+	ctx.String(http.StatusOK, "Recipe updated")
 }
