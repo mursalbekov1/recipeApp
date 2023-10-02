@@ -1,27 +1,46 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
-	"recipeApp/internal/app/recipe"
+	"os"
+	app "recipeApp/internal/app/api"
+	"strconv"
 	"time"
 )
 
-const PORT = ":8080"
+type config struct {
+	port int
+	env  string
+}
+
+//type Application struct {
+//	config config
+//	logger *log.Logger
+//}
 
 func main() {
-	router := gin.Default()
-	router.GET("/recipeList", recipe.GetRecipesList)
-	router.GET("/recipe/:id", recipe.GetRecipe)
 
-	serv := &http.Server{
-		Addr:        PORT,
+	var cfg config
+	cfg.port = 4000
+	cfg.env = "dev"
+
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+
+	//app := &Application{
+	//	config: cfg,
+	//	logger: logger,
+	//}
+
+	router := app.Routes()
+
+	server := &http.Server{
+		Addr:        ":" + strconv.Itoa(cfg.port),
 		Handler:     router,
 		ReadTimeout: 3 * time.Second,
 	}
 
-	err := serv.ListenAndServe()
-	if err != nil {
-		return
-	}
+	logger.Printf("starting %s server on %s", cfg.env, server.Addr)
+	err := server.ListenAndServe()
+	logger.Fatal(err)
 }
