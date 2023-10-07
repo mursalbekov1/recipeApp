@@ -5,13 +5,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"recipeApp/internal/app/JSON"
+	"recipeApp/internal/app/middleWare"
 	"recipeApp/internal/app/models"
 	"time"
 )
 
 func GetRecipe(c *gin.Context) {
+	id, err := middleWare.ReadIDParam(c)
+	if err != nil {
+		http.NotFoundHandler()
+		return
+	}
+
 	recipe := models.Recipe{
-		ID:          1,
+		ID:          id,
 		Time:        time.Now(),
 		Title:       "Паста с помидорами",
 		Description: "Простой рецепт пасты с помидорами и базиликом.",
@@ -20,7 +27,7 @@ func GetRecipe(c *gin.Context) {
 		Author:      1,
 	}
 
-	err := JSON.WriteJSON(c.Writer, http.StatusOK, JSON.Envelope{"recipe": recipe}, nil)
+	err = JSON.WriteJSON(c.Writer, http.StatusOK, JSON.Envelope{"recipe": recipe}, nil)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "The server encountered a problem and could not process your request"})
