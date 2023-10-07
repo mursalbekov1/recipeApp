@@ -14,10 +14,10 @@ type config struct {
 	env  string
 }
 
-type Application struct {
-	config config
-	logger *log.Logger
-}
+//type Application struct {
+//	config config
+//	logger *log.Logger
+//}
 
 func main() {
 

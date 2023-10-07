@@ -13,8 +13,8 @@ func GetRecipe(c *gin.Context) {
 	recipe := models.Recipe{
 		ID:          1,
 		Time:        time.Now(),
-		Title:       "",
-		Description: "",
+		Title:       "Паста с помидорами",
+		Description: "Простой рецепт пасты с помидорами и базиликом.",
 		Ingredients: []string{"200 г пасты", "2 помидора", "Свежий базилик"},
 		Steps:       []string{"Сварите пасту по инструкции.", "Нарежьте помидоры и базилик.", "Смешайте готовую пасту с помидорами и базиликом."},
 		Author:      1,
