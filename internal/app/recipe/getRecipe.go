@@ -5,20 +5,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"recipeApp/internal/app/JSON"
-	"recipeApp/internal/app/middleWare"
 	"recipeApp/internal/app/models"
+	"strconv"
 	"time"
 )
 
 func GetRecipe(c *gin.Context) {
-	id, err := middleWare.ReadIDParam(c)
+	id := c.Param("id")
+
+	recipeID, err := strconv.Atoi(id)
 	if err != nil {
-		http.NotFoundHandler()
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 
 	recipe := models.Recipe{
-		ID:          id,
+		ID:          int64(recipeID),
 		Time:        time.Now(),
 		Title:       "Паста с помидорами",
 		Description: "Простой рецепт пасты с помидорами и базиликом.",
