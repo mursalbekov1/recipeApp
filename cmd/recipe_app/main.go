@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	app "recipeApp/internal/app/api"
 	"strconv"
 	"time"
 )
@@ -14,10 +13,10 @@ type config struct {
 	env  string
 }
 
-//type Application struct {
-//	config config
-//	logger *log.Logger
-//}
+type application struct {
+	config config
+	logger *log.Logger
+}
 
 func main() {
 
@@ -27,12 +26,12 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	//app := &Application{
-	//	config: cfg,
-	//	logger: logger,
-	//}
+	app := &application{
+		config: cfg,
+		logger: logger,
+	}
 
-	router := app.Routes()
+	router := app.routes()
 
 	server := &http.Server{
 		Addr:        ":" + strconv.Itoa(cfg.port),
