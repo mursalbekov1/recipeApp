@@ -18,7 +18,7 @@ func (app *application) getRecipe(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Отображение информации о рецепте %d", recipeID)})
 
 	recipe := Recipe{
-		ID:          int64(recipeID),
+		ID:          recipeID,
 		Time:        time.Now(),
 		Title:       "Паста с помидорами",
 		Description: "Простой рецепт пасты с помидорами и базиликом.",

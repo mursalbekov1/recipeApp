@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	router *gin.Engine
 }
 
 func main() {
@@ -29,11 +31,12 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		router: gin.Default(),
 	}
 
 	server := &http.Server{
 		Addr:         ":" + strconv.Itoa(cfg.port),
-		Handler:      app.routes(),
+		Handler:      app.router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 30 * time.Second,
