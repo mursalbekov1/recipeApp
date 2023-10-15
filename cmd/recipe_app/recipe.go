@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 )
 
 func (app *application) getRecipe(c *gin.Context) {
@@ -19,7 +18,7 @@ func (app *application) getRecipe(c *gin.Context) {
 
 	recipe := Recipe{
 		ID:          recipeID,
-		Time:        time.Now(),
+		Runtime:     102,
 		Title:       "Паста с помидорами",
 		Description: "Простой рецепт пасты с помидорами и базиликом.",
 		Ingredients: []string{"200 г пасты", "2 помидора", "Свежий базилик"},
@@ -159,19 +158,20 @@ func (app *application) addRecipe(c *gin.Context) {
 }
 
 func (app *application) healthcheckHandler(c *gin.Context) {
-	data := map[string]string{
-		"status":      "available",
-		"environment": app.config.env,
-		"version":     version,
+	env := Envelope{
+		"status": "available",
+		"system_info": map[string]string{
+			"environment": app.config.env,
+			"version":     version,
+		},
 	}
 
-	err := app.writeJSON(c.Writer, http.StatusOK, Envelope{}, nil)
+	err := app.writeJSON(c.Writer, http.StatusOK, env, nil)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "The server encountered a problem and could not process your request"})
 	}
 
-	c.JSON(http.StatusOK, data)
 }
 
 const version = "1.0.0"
