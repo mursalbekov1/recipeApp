@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go_recipe/internal/data"
 	"net/http"
@@ -29,8 +28,7 @@ func (app *application) getRecipe(c *gin.Context) {
 
 	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"recipe": recipe}, nil)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "The server encountered a problem and could not process your request"})
+		app.serverErrorResponse(c, err)
 	}
 
 }
@@ -169,8 +167,7 @@ func (app *application) healthcheckHandler(c *gin.Context) {
 
 	err := app.writeJSON(c.Writer, http.StatusOK, env, nil)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "The server encountered a problem and could not process your request"})
+		app.serverErrorResponse(c, err)
 	}
 
 }

@@ -7,12 +7,19 @@ import (
 func (app *application) routes() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/v1/addRecipe", app.addRecipe)
-	router.GET("/v1/recipe/:id", app.getRecipe)
-	router.GET("/v1/check", app.healthcheckHandler)
-	//router.PUT("/v1/addRecipe", recipe.AddRecipe)
-	//router.DELETE("/v1/deleteRecipe/:id", recipe.DeleteRecipe)
-	//router.PUT("/v1/updateRecipe/:id", recipe.UpdateRecipe)
+	router.NoRoute(app.notFoundResponse)
+	router.NoMethod(app.methodNotAllowedResponse)
+
+	// Define your routes and associate them with handlers
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/addRecipe", app.addRecipe)
+		v1.GET("/recipe/:id", app.getRecipe)
+		v1.GET("/check", app.healthcheckHandler)
+		//v1.PUT("/v1/addRecipe", app.AddRecipe)
+		//v1.DELETE("/v1/deleteRecipe/:id", app.DeleteRecipe)
+		//v1.PUT("/v1/updateRecipe/:id", app.UpdateRecipe)
+	}
 
 	return router
 }
