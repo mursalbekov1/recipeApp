@@ -144,7 +144,7 @@ const jsonR = `[
 ]
 `
 
-func (app *application) addRecipe(c *gin.Context) {
+func (app *application) getRecipeList(c *gin.Context) {
 
 	jsonData, err := json.Marshal(jsonR)
 	if err != nil {
@@ -153,6 +153,18 @@ func (app *application) addRecipe(c *gin.Context) {
 	}
 
 	c.Data(http.StatusOK, "application/json; charset=utf-8", jsonData)
+
+}
+
+func (app *application) addRecipe(c *gin.Context) {
+	var input data.Recipe
+
+	if err := app.readJSON(c, &input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": input})
 
 }
 
