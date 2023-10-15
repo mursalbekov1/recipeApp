@@ -15,7 +15,7 @@ func (app *application) getRecipe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Отображение информации о рецепте %d", recipeID)})
+	//c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Отображение информации о рецепте %d", recipeID)})
 
 	recipe := Recipe{
 		ID:          recipeID,
@@ -157,3 +157,15 @@ func (app *application) addRecipe(c *gin.Context) {
 	c.Data(http.StatusOK, "application/json; charset=utf-8", jsonData)
 
 }
+
+func (app *application) healthcheckHandler(c *gin.Context) {
+	data := map[string]string{
+		"status":      "available",
+		"environment": app.config.env,
+		"version":     version,
+	}
+
+	c.JSON(http.StatusOK, data)
+}
+
+const version = "1.0.0"
