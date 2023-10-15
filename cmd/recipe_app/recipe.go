@@ -146,7 +146,7 @@ const jsonR = `[
 ]
 `
 
-func addRecipe(c *gin.Context) {
+func (app *application) addRecipe(c *gin.Context) {
 
 	jsonData, err := json.Marshal(jsonR)
 	if err != nil {

@@ -31,12 +31,12 @@ func main() {
 		logger: logger,
 	}
 
-	router := app.routes()
-
 	server := &http.Server{
-		Addr:        ":" + strconv.Itoa(cfg.port),
-		Handler:     router,
-		ReadTimeout: 3 * time.Second,
+		Addr:         ":" + strconv.Itoa(cfg.port),
+		Handler:      app.routes(),
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 30 * time.Second,
 	}
 
 	logger.Printf("starting %s server on %s", cfg.env, server.Addr)
