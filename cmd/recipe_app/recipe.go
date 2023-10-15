@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go_recipe/internal/data"
 	"net/http"
 )
 
@@ -16,7 +17,7 @@ func (app *application) getRecipe(c *gin.Context) {
 
 	//c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Отображение информации о рецепте %d", recipeID)})
 
-	recipe := Recipe{
+	recipe := data.Recipe{
 		ID:          recipeID,
 		Runtime:     102,
 		Title:       "Паста с помидорами",
