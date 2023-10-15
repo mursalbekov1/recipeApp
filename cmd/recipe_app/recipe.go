@@ -27,7 +27,7 @@ func (app *application) getRecipe(c *gin.Context) {
 		Author:      1,
 	}
 
-	err = writeJSON(c.Writer, http.StatusOK, Envelope{"recipe": recipe}, nil)
+	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"recipe": recipe}, nil)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "The server encountered a problem and could not process your request"})
@@ -163,6 +163,12 @@ func (app *application) healthcheckHandler(c *gin.Context) {
 		"status":      "available",
 		"environment": app.config.env,
 		"version":     version,
+	}
+
+	err := app.writeJSON(c.Writer, http.StatusOK, Envelope{}, nil)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "The server encountered a problem and could not process your request"})
 	}
 
 	c.JSON(http.StatusOK, data)

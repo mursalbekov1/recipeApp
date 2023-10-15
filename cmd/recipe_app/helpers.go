@@ -18,7 +18,7 @@ func (app *application) readIDParam(c *gin.Context) (int64, error) {
 
 type Envelope map[string]interface{}
 
-func writeJSON(w http.ResponseWriter, status int, data Envelope, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data Envelope, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
