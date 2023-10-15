@@ -160,7 +160,7 @@ func (app *application) addRecipe(c *gin.Context) {
 	var input data.Recipe
 
 	if err := app.readJSON(c, &input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		app.badRequestResponse(c, err)
 		return
 	}
 

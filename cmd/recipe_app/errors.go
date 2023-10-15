@@ -30,3 +30,11 @@ func (app *application) methodNotAllowedResponse(c *gin.Context) {
 	message := fmt.Sprintf("the %s method is not supported for this resource", c.Request.Method)
 	app.errorResponse(c, http.StatusMethodNotAllowed, message)
 }
+
+func (app *application) badRequestResponse(c *gin.Context, err error) {
+	app.errorResponse(c, http.StatusBadRequest, err.Error())
+}
+
+func (app *application) failedValidationResponse(c *gin.Context, errors map[string]string) {
+	app.errorResponse(c, http.StatusUnprocessableEntity, errors)
+}
