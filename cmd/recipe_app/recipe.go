@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"recipeApp/internal"
-	"strconv"
 	"time"
 )
 
-func getRecipe(c *gin.Context) {
-	id := c.Param("id")
-
-	recipeID, err := strconv.Atoi(id)
+func (app *application) getRecipe(c *gin.Context) {
+	recipeID, err := app.readIDParam(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Рецепт не найден!"})
 		return
 	}
 
-	recipe := internal.Recipe{
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Отображение информации о рецепте %d", recipeID)})
+
+	recipe := Recipe{
 		ID:          int64(recipeID),
 		Time:        time.Now(),
 		Title:       "Паста с помидорами",
