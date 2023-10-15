@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go_recipe/internal/data"
+	"go_recipe/internal/validator"
 	"net/http"
 )
 
@@ -161,6 +162,13 @@ func (app *application) addRecipe(c *gin.Context) {
 
 	if err := app.readJSON(c, &input); err != nil {
 		app.badRequestResponse(c, err)
+		return
+	}
+
+	v := validator.New()
+
+	if data.ValidateRecipe(v, input); !v.Valid() {
+		app.failedValidationResponse(c, v.Errors)
 		return
 	}
 
