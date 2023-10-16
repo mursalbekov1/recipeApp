@@ -13,7 +13,7 @@ type Recipe struct {
 	Ingredients   []string  `json:"ingredients"`
 	Steps         []string  `json:"steps"`
 	Author        int64     `json:"author"`
-	Collaborators int64     `json:"collaborators"`
+	Collaborators []int64   `json:"collaborators"`
 }
 
 type Author struct {
