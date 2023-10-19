@@ -1,6 +1,8 @@
 package data
 
 import (
+	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -23,4 +25,18 @@ type Author struct {
 	Password       string  `json:"-"`
 	Recipes        []int64 `json:"recipes"`
 	RecipeAccesses []int64 `json:"access_recipes"`
+}
+
+var (
+	ErrRecordNotFound = errors.New("record not found")
+)
+
+type Models struct {
+	Recipe RecipeModel
+}
+
+func NewModels(db *sql.DB) Models {
+	return Models{
+		Recipe: RecipeModel{DB: db},
+	}
 }

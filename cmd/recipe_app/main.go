@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"go_recipe/internal/data"
 	"log"
 	"net/http"
 	"os"
@@ -25,6 +26,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -41,9 +43,18 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
+	db, err := openDB(cfg)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	defer db.Close()
+	logger.Printf("database connection pool established")
+
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 
 	server := &http.Server{
@@ -55,7 +66,7 @@ func main() {
 	}
 
 	logger.Printf("starting %s server on %s", cfg.env, server.Addr)
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	logger.Fatal(err)
 }
 
