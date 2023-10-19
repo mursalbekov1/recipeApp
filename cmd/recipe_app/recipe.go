@@ -80,3 +80,11 @@ func (app *application) healthcheckHandler(c *gin.Context) {
 	}
 
 }
+
+//func (app *application) updateRecipe(c *gin.Context) {
+//	recipeId, err := app.readIDParam(c)
+//	if err != nil {
+//		c.JSON(http.StatusNotFound, gin.H{"error": "Рецепт не найден"})
+//	}
+//
+//}
