@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	_ "github.com/lib/pq"
 	"go_recipe/internal/data"
 	"log"
 	"net/http"
