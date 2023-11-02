@@ -36,15 +36,15 @@ func (app *application) getRecipe(c *gin.Context) {
 
 }
 
-func (app *application) getRecipeList(c *gin.Context) {
-	//jsonData, err := json.Marshal(jsonR)
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при кодировании JSON"})
-	//	return
-	//}
-	//
-	//c.Data(http.StatusOK, "application/json; charset=utf-8", jsonData)
-}
+//func (app *application) getRecipeList(c *gin.Context) {
+//	//jsonData, err := json.Marshal(jsonR)
+//	//if err != nil {
+//	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при кодировании JSON"})
+//	//	return
+//	//}
+//	//
+//	//c.Data(http.StatusOK, "application/json; charset=utf-8", jsonData)
+//}
 
 func (app *application) addRecipe(c *gin.Context) {
 	var input struct {
@@ -112,6 +112,7 @@ func (app *application) updateRecipe(c *gin.Context) {
 	id, err := app.readIDParam(c)
 	if err != nil {
 		app.notFoundResponse(c)
+		return
 	}
 
 	recipe, err := app.models.Recipe.Get(id)
@@ -121,8 +122,8 @@ func (app *application) updateRecipe(c *gin.Context) {
 			app.notFoundResponse(c)
 		default:
 			app.serverErrorResponse(c, err)
-			return
 		}
+		return
 	}
 
 	var input struct {
@@ -136,6 +137,7 @@ func (app *application) updateRecipe(c *gin.Context) {
 	err = app.readJSON(c, &input)
 	if err != nil {
 		app.badRequestResponse(c, err)
+		return
 	}
 
 	recipe.Title = input.Title
