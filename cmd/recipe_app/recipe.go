@@ -108,10 +108,57 @@ func (app *application) healthcheckHandler(c *gin.Context) {
 
 }
 
-//func (app *application) updateRecipe(c *gin.Context) {
-//	recipeId, err := app.readIDParam(c)
-//	if err != nil {
-//		c.JSON(http.StatusNotFound, gin.H{"error": "Рецепт не найден"})
-//	}
-//
-//}
+func (app *application) updateRecipe(c *gin.Context) {
+	id, err := app.readIDParam(c)
+	if err != nil {
+		app.notFoundResponse(c)
+	}
+
+	recipe, err := app.models.Recipe.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(c)
+		default:
+			app.serverErrorResponse(c, err)
+			return
+		}
+	}
+
+	var input struct {
+		Title         string   `json:"title"`
+		Description   string   `json:"description"`
+		Ingredients   []string `json:"ingredients"`
+		Steps         []string `json:"steps"`
+		Collaborators []int64  `json:"collaborators"`
+	}
+
+	err = app.readJSON(c, &input)
+	if err != nil {
+		app.badRequestResponse(c, err)
+	}
+
+	recipe.Title = input.Title
+	recipe.Description = input.Description
+	recipe.Ingredients = input.Ingredients
+	recipe.Steps = input.Steps
+	recipe.Collaborators = input.Collaborators
+
+	v := validator.New()
+
+	if data.ValidateRecipe(v, recipe); !v.Valid() {
+		app.failedValidationResponse(c, v.Errors)
+		return
+	}
+
+	err = app.models.Recipe.Update(recipe)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return
+	}
+
+	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"Recipe": recipe}, nil)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+	}
+}

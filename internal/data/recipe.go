@@ -60,7 +60,22 @@ func (r RecipeModel) Get(id int64) (*Recipe, error) {
 }
 
 func (r RecipeModel) Update(recipe *Recipe) error {
-	return nil
+
+	query := `
+		UPDATE recipes 
+		SET title = $1, description = $2, ingredients = $3, steps = $4, collaborators = $5
+		WHERE id = $6`
+
+	args := []interface{}{
+		recipe.Title,
+		recipe.Description,
+		recipe.Ingredients,
+		recipe.Steps,
+		recipe.Collaborators,
+		recipe.ID,
+	}
+
+	return r.DB.QueryRow(query, args...).Scan()
 }
 
 func (r RecipeModel) Delete(id int64) error {
