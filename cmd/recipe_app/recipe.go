@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go_recipe/internal/data"
 	"go_recipe/internal/validator"
@@ -12,21 +14,19 @@ const version = "1.0.0"
 func (app *application) getRecipe(c *gin.Context) {
 	recipeID, err := app.readIDParam(c)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Рецепт не найден!"})
+		app.notFoundResponse(c)
 		return
 	}
 
-	//c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Отображение информации о рецепте %d", recipeID)})
-
-	recipe := data.Recipe{
-		ID:            recipeID,
-		Runtime:       102,
-		Title:         "Паста с помидорами",
-		Description:   "Простой рецепт пасты с помидорами и базиликом.",
-		Ingredients:   []string{"200 г пасты", "2 помидора", "Свежий базилик"},
-		Steps:         []string{"Сварите пасту по инструкции.", "Нарежьте помидоры и базилик.", "Смешайте готовую пасту с помидорами и базиликом."},
-		Author:        1,
-		Collaborators: []int64{1, 2, 3, 4, 5},
+	recipe, err := app.models.Recipe.Get(recipeID)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(c)
+		default:
+			app.serverErrorResponse(c, err)
+		}
+		return
 	}
 
 	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"recipe": recipe}, nil)
@@ -47,21 +47,48 @@ func (app *application) getRecipeList(c *gin.Context) {
 }
 
 func (app *application) addRecipe(c *gin.Context) {
-	var input data.Recipe
+	var input struct {
+		Title         string   `json:"title"`
+		Description   string   `json:"description"`
+		Ingredients   []string `json:"ingredients"`
+		Steps         []string `json:"steps"`
+		Author        int64    `json:"author"`
+		Collaborators []int64  `json:"collaborators"`
+	}
 
 	if err := app.readJSON(c, &input); err != nil {
 		app.badRequestResponse(c, err)
 		return
 	}
 
+	recipe := &data.Recipe{
+		Title:         input.Title,
+		Description:   input.Description,
+		Ingredients:   input.Ingredients,
+		Steps:         input.Steps,
+		Author:        input.Author,
+		Collaborators: input.Collaborators,
+	}
+
 	v := validator.New()
 
-	if data.ValidateRecipe(v, input); !v.Valid() {
+	if data.ValidateRecipe(v, recipe); !v.Valid() {
 		app.failedValidationResponse(c, v.Errors)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": input})
+	err := app.models.Recipe.Insert(recipe)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/recipe/%d", recipe.ID))
+
+	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"recipe": recipe}, headers)
+
+	//c.JSON(http.StatusOK, gin.H{"data": input})
 
 }
 

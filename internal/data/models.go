@@ -11,7 +11,6 @@ type Recipe struct {
 	Time          time.Time `json:"time"`
 	Title         string    `json:"title"`
 	Description   string    `json:"description"`
-	Runtime       Runtime   `json:"runtime,omitempty"`
 	Ingredients   []string  `json:"ingredients"`
 	Steps         []string  `json:"steps"`
 	Author        int64     `json:"author"`
@@ -32,7 +31,12 @@ var (
 )
 
 type Models struct {
-	Recipe RecipeModel
+	Recipe interface {
+		Insert(movie *Recipe) error
+		Get(id int64) (*Recipe, error)
+		Update(movie *Recipe) error
+		Delete(id int64) error
+	}
 }
 
 func NewModels(db *sql.DB) Models {
