@@ -9,8 +9,6 @@ import (
 	"net/http"
 )
 
-const version = "1.0.0"
-
 func (app *application) getRecipe(c *gin.Context) {
 	recipeID, err := app.readIDParam(c)
 	if err != nil {
@@ -35,16 +33,6 @@ func (app *application) getRecipe(c *gin.Context) {
 	}
 
 }
-
-//func (app *application) getRecipeList(c *gin.Context) {
-//	//jsonData, err := json.Marshal(jsonR)
-//	//if err != nil {
-//	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при кодировании JSON"})
-//	//	return
-//	//}
-//	//
-//	//c.Data(http.StatusOK, "application/json; charset=utf-8", jsonData)
-//}
 
 func (app *application) addRecipe(c *gin.Context) {
 	var input struct {
@@ -89,22 +77,6 @@ func (app *application) addRecipe(c *gin.Context) {
 	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"recipe": recipe}, headers)
 
 	//c.JSON(http.StatusOK, gin.H{"data": input})
-
-}
-
-func (app *application) healthcheckHandler(c *gin.Context) {
-	env := Envelope{
-		"status": "available",
-		"system_info": map[string]string{
-			"environment": app.config.env,
-			"version":     version,
-		},
-	}
-
-	err := app.writeJSON(c.Writer, http.StatusOK, env, nil)
-	if err != nil {
-		app.serverErrorResponse(c, err)
-	}
 
 }
 
@@ -160,6 +132,30 @@ func (app *application) updateRecipe(c *gin.Context) {
 	}
 
 	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"Recipe": recipe}, nil)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+	}
+}
+
+func (app *application) deleteRecipe(c *gin.Context) {
+	id, err := app.readIDParam(c)
+	if err != nil {
+		app.notFoundResponse(c)
+		return
+	}
+
+	err = app.models.Recipe.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(c)
+		default:
+			app.serverErrorResponse(c, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"Recipe": "Recipe was successful deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 	}

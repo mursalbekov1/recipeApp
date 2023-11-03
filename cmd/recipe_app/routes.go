@@ -12,12 +12,11 @@ func (app *application) routes() *gin.Engine {
 
 	v1 := router.Group("/v1")
 	{
-		//v1.GET("/getRecipeList", app.getRecipeList)
 		v1.GET("/author/:id", app.getAuthor)
 		v1.GET("/recipe/:id", app.getRecipe)
-		//v1.GET("/check", app.healthcheckHandler)
 		v1.POST("/recipe", app.addRecipe)
 		v1.PUT("/recipe/:id", app.updateRecipe)
+		v1.DELETE("/recipe/:id", app.deleteRecipe)
 	}
 
 	return router
