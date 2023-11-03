@@ -15,7 +15,7 @@ func (app *application) routes() *gin.Engine {
 		v1.GET("/author/:id", app.getAuthor)
 		v1.GET("/recipe/:id", app.getRecipe)
 		v1.POST("/recipe", app.addRecipe)
-		v1.PUT("/recipe/:id", app.updateRecipe)
+		v1.PATCH("/recipe/:id", app.updateRecipe)
 		v1.DELETE("/recipe/:id", app.deleteRecipe)
 	}
 

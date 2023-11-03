@@ -99,8 +99,8 @@ func (app *application) updateRecipe(c *gin.Context) {
 	}
 
 	var input struct {
-		Title         string   `json:"title"`
-		Description   string   `json:"description"`
+		Title         *string  `json:"title"`
+		Description   *string  `json:"description"`
 		Ingredients   []string `json:"ingredients"`
 		Steps         []string `json:"steps"`
 		Collaborators []int64  `json:"collaborators"`
@@ -112,11 +112,25 @@ func (app *application) updateRecipe(c *gin.Context) {
 		return
 	}
 
-	recipe.Title = input.Title
-	recipe.Description = input.Description
-	recipe.Ingredients = input.Ingredients
-	recipe.Steps = input.Steps
-	recipe.Collaborators = input.Collaborators
+	if input.Title != nil {
+		recipe.Title = *input.Title
+	}
+
+	if input.Description != nil {
+		recipe.Description = *input.Description
+	}
+
+	if input.Ingredients != nil {
+		recipe.Ingredients = input.Ingredients
+	}
+
+	if input.Steps != nil {
+		recipe.Steps = input.Steps
+	}
+
+	if input.Collaborators != nil {
+		recipe.Collaborators = input.Collaborators
+	}
 
 	v := validator.New()
 
