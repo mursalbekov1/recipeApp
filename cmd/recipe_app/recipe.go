@@ -8,6 +8,7 @@ import (
 	"go_recipe/internal/validator"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func (app *application) getRecipe(c *gin.Context) {
@@ -190,12 +191,13 @@ func (app *application) deleteRecipe(c *gin.Context) {
 
 func (app *application) getRecipeList(c *gin.Context) {
 	var input struct {
-		Title         string   `json:"title"`
-		Description   string   `json:"description"`
-		Ingredients   []string `json:"ingredients"`
-		Steps         []string `json:"steps"`
-		Author        int      `json:"author"`
-		Collaborators []int    `json:"collaborators"`
+		Title         string    `json:"title"`
+		Time          time.Time `json:"time"`
+		Description   string    `json:"description"`
+		Ingredients   []string  `json:"ingredients"`
+		Steps         []string  `json:"steps"`
+		Author        int       `json:"author"`
+		Collaborators []int     `json:"collaborators"`
 		data.Filters
 	}
 
@@ -213,10 +215,24 @@ func (app *application) getRecipeList(c *gin.Context) {
 	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
 	input.Filters.Sort = app.readString(qs, "sort", "id")
 
-	if !v.Valid() {
+	input.Filters.SortSafelist = []string{
+		"id", "title", "author", "-id", "-title", "-author",
+	}
+
+	if data.ValidateFilters(v, input.Filters); !v.Valid() {
 		app.failedValidationResponse(c, v.Errors)
 		return
 	}
 
-	fmt.Fprintf(c.Writer, "%+v\n", input)
+	recipes, err := app.models.Recipe.GetAll(input.Title, input.Ingredients, input.Filters)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return
+	}
+
+	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"recipes": recipes}, nil)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+	}
+
 }

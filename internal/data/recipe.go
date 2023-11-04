@@ -129,6 +129,51 @@ func (r RecipeModel) Delete(id int64) error {
 	return nil
 }
 
+func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, error) {
+	query := `
+		SELECT id, title, description, ingredients, steps, author_id, collaborators, version
+		FROM recipes
+		ORDER BY id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := r.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	recipes := []*Recipe{}
+
+	for rows.Next() {
+
+		var recipe Recipe
+
+		err := rows.Scan(
+			&recipe.ID,
+			&recipe.Title,
+			&recipe.Description,
+			pq.Array(&recipe.Ingredients),
+			pq.Array(&recipe.Steps),
+			&recipe.Author,
+			pq.Array(&recipe.Collaborators),
+			&recipe.Version,
+		)
+		if err != nil {
+			return nil, err
+		}
+		recipes = append(recipes, &recipe)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return recipes, nil
+}
+
 func (r Recipe) MarshalJSON() ([]byte, error) {
 	//var runtime string
 	//
