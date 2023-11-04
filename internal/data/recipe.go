@@ -63,9 +63,9 @@ func (r RecipeModel) Update(recipe *Recipe) error {
 
 	query := `
 		UPDATE recipes 
-		SET title = $1, description = $2, ingredients = $3, steps = $4, collaborators = $5
-		WHERE id = $6
-		RETURNING time`
+		SET title = $1, description = $2, ingredients = $3, steps = $4, collaborators = $5, version = version + 1
+		WHERE id = $6 and version = $7
+		RETURNING time, version`
 
 	args := []interface{}{
 		recipe.Title,
@@ -74,9 +74,20 @@ func (r RecipeModel) Update(recipe *Recipe) error {
 		pq.Array(recipe.Steps),
 		pq.Array(recipe.Collaborators),
 		recipe.ID,
+		recipe.Version,
 	}
 
-	return r.DB.QueryRow(query, args...).Scan(&recipe.Time)
+	err := r.DB.QueryRow(query, args...).Scan(&recipe.Time, &recipe.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (r RecipeModel) Delete(id int64) error {

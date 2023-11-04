@@ -15,6 +15,7 @@ type Recipe struct {
 	Steps         []string  `json:"steps"`
 	Author        int64     `json:"author"`
 	Collaborators []int64   `json:"collaborators"`
+	Version       int64     `json:"version"`
 }
 
 type Author struct {
@@ -28,6 +29,7 @@ type Author struct {
 
 var (
 	ErrRecordNotFound = errors.New("record not found")
+	ErrEditConflict   = errors.New("edit conflict")
 )
 
 type Models struct {

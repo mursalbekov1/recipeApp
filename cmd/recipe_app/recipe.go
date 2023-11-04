@@ -7,6 +7,7 @@ import (
 	"go_recipe/internal/data"
 	"go_recipe/internal/validator"
 	"net/http"
+	"strconv"
 )
 
 func (app *application) getRecipe(c *gin.Context) {
@@ -98,6 +99,13 @@ func (app *application) updateRecipe(c *gin.Context) {
 		return
 	}
 
+	if c.GetHeader("X-Expected-Version") != "" {
+		if strconv.FormatInt(int64(recipe.Version), 32) != c.GetHeader("X-Expected-Version") {
+			app.editConflictResponse(c)
+			return
+		}
+	}
+
 	var input struct {
 		Title         *string  `json:"title"`
 		Description   *string  `json:"description"`
@@ -141,7 +149,12 @@ func (app *application) updateRecipe(c *gin.Context) {
 
 	err = app.models.Recipe.Update(recipe)
 	if err != nil {
-		app.serverErrorResponse(c, err)
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(c)
+		default:
+			app.serverErrorResponse(c, err)
+		}
 		return
 	}
 
