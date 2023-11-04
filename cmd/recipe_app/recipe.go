@@ -191,13 +191,13 @@ func (app *application) deleteRecipe(c *gin.Context) {
 
 func (app *application) getRecipeList(c *gin.Context) {
 	var input struct {
-		Title         string    `json:"title"`
-		Time          time.Time `json:"time"`
-		Description   string    `json:"description"`
-		Ingredients   []string  `json:"ingredients"`
-		Steps         []string  `json:"steps"`
-		Author        int       `json:"author"`
-		Collaborators []int     `json:"collaborators"`
+		Title         string
+		Time          time.Time
+		Description   string
+		Ingredients   []string
+		Steps         []string
+		Author        int
+		Collaborators []int
 		data.Filters
 	}
 
@@ -215,9 +215,7 @@ func (app *application) getRecipeList(c *gin.Context) {
 	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
 	input.Filters.Sort = app.readString(qs, "sort", "id")
 
-	input.Filters.SortSafelist = []string{
-		"id", "title", "author", "-id", "-title", "-author",
-	}
+	input.Filters.SortSafelist = []string{"id", "title", "author", "-id", "-title", "-author"}
 
 	if data.ValidateFilters(v, input.Filters); !v.Valid() {
 		app.failedValidationResponse(c, v.Errors)

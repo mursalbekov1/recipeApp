@@ -133,12 +133,14 @@ func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters)
 	query := `
 		SELECT id, title, description, ingredients, steps, author_id, collaborators, version
 		FROM recipes
+		WHERE (lower(title) = lower($1) or $1 = '')
+		AND (ingredients @> $2 OR $2 = '{}')
 		ORDER BY id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := r.DB.QueryContext(ctx, query)
+	rows, err := r.DB.QueryContext(ctx, query, title, pq.Array(ingredients))
 	if err != nil {
 		return nil, err
 	}
