@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -19,12 +20,15 @@ func (r RecipeModel) Insert(recipe *Recipe) error {
 	query := `
 		INSERT INTO recipes (title, description, ingredients, steps, author_id, collaborators, time)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id, time
+		RETURNING id, time, version
 	`
 
 	args := []interface{}{recipe.Title, recipe.Description, pq.Array(recipe.Ingredients), pq.Array(recipe.Steps), recipe.Author, pq.Array(recipe.Collaborators), createTime}
 
-	return r.DB.QueryRow(query, args...).Scan(&recipe.ID, &recipe.Time)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	return r.DB.QueryRowContext(ctx, query, args...).Scan(&recipe.ID, &recipe.Time)
 }
 
 func (r RecipeModel) Get(id int64) (*Recipe, error) {
@@ -38,7 +42,11 @@ func (r RecipeModel) Get(id int64) (*Recipe, error) {
 
 	var recipe Recipe
 
-	err := r.DB.QueryRow(query, id).Scan(
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(
 		&recipe.ID,
 		&recipe.Time,
 		&recipe.Title,
@@ -77,7 +85,10 @@ func (r RecipeModel) Update(recipe *Recipe) error {
 		recipe.Version,
 	}
 
-	err := r.DB.QueryRow(query, args...).Scan(&recipe.Time, &recipe.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := r.DB.QueryRowContext(ctx, query, args...).Scan(&recipe.Time, &recipe.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -98,7 +109,10 @@ func (r RecipeModel) Delete(id int64) error {
 	query := `DELETE FROM recipes 
        		  WHERE id = $1`
 
-	result, err := r.DB.Exec(query, id)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := r.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
