@@ -130,9 +130,9 @@ func (r RecipeModel) Delete(id int64) error {
 	return nil
 }
 
-func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, error) {
+func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, Metadata, error) {
 	query := fmt.Sprintf(`
-		SELECT id, title, description, ingredients, steps, author_id, collaborators, version
+		SELECT  count(*) OVER(), id, title, description, ingredients, steps, author_id, collaborators, version
 		FROM recipes
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (ingredients @> $2 OR $2 = '{}')
@@ -146,11 +146,12 @@ func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters)
 
 	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
 	defer rows.Close()
 
+	totalRecords := 0
 	recipes := []*Recipe{}
 
 	for rows.Next() {
@@ -158,6 +159,7 @@ func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters)
 		var recipe Recipe
 
 		err := rows.Scan(
+			&totalRecords,
 			&recipe.ID,
 			&recipe.Title,
 			&recipe.Description,
@@ -168,16 +170,18 @@ func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters)
 			&recipe.Version,
 		)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 		recipes = append(recipes, &recipe)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
-	return recipes, nil
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return recipes, metadata, nil
 }
 
 func (r Recipe) MarshalJSON() ([]byte, error) {

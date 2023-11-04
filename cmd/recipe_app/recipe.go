@@ -210,11 +210,12 @@ func (app *application) getRecipeList(c *gin.Context) {
 	input.Ingredients = app.readCSV(qs, "ingredients", []string{})
 	input.Steps = app.readCSV(qs, "steps", []string{})
 	input.Author = app.readInt(qs, "author", 1, v)
-	input.Collaborators = app.read(qs, "author", []int{})
+	input.Collaborators = app.read(qs, "collaborators", []int{})
+
 	input.Filters.Page = app.readInt(qs, "page", 1, v)
 	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
-	input.Filters.Sort = app.readString(qs, "sort", "id")
 
+	input.Filters.Sort = app.readString(qs, "sort", "id")
 	input.Filters.SortSafelist = []string{"id", "title", "author", "-id", "-title", "-author"}
 
 	if data.ValidateFilters(v, input.Filters); !v.Valid() {
@@ -222,13 +223,13 @@ func (app *application) getRecipeList(c *gin.Context) {
 		return
 	}
 
-	recipes, err := app.models.Recipe.GetAll(input.Title, input.Ingredients, input.Filters)
+	recipes, metadata, err := app.models.Recipe.GetAll(input.Title, input.Ingredients, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		return
 	}
 
-	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"recipes": recipes}, nil)
+	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"recipes": recipes, "metadata": metadata}, nil)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 	}

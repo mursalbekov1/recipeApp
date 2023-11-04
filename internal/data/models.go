@@ -38,7 +38,7 @@ type Models struct {
 		Get(id int64) (*Recipe, error)
 		Update(movie *Recipe) error
 		Delete(id int64) error
-		GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, error)
+		GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, Metadata, error)
 	}
 }
 
