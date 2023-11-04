@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/lib/pq"
 	"go_recipe/internal/validator"
 	"time"
@@ -130,17 +131,20 @@ func (r RecipeModel) Delete(id int64) error {
 }
 
 func (r RecipeModel) GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, title, description, ingredients, steps, author_id, collaborators, version
 		FROM recipes
-		WHERE (lower(title) = lower($1) or $1 = '')
+		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (ingredients @> $2 OR $2 = '{}')
-		ORDER BY id`
+		ORDER BY %s %s, id ASC
+		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := r.DB.QueryContext(ctx, query, title, pq.Array(ingredients))
+	args := []interface{}{title, pq.Array(ingredients), filters.limit(), filters.offset()}
+
+	rows, err := r.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
