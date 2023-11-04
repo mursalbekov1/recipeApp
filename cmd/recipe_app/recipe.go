@@ -187,3 +187,36 @@ func (app *application) deleteRecipe(c *gin.Context) {
 		app.serverErrorResponse(c, err)
 	}
 }
+
+func (app *application) getRecipeList(c *gin.Context) {
+	var input struct {
+		Title         string   `json:"title"`
+		Description   string   `json:"description"`
+		Ingredients   []string `json:"ingredients"`
+		Steps         []string `json:"steps"`
+		Author        int      `json:"author"`
+		Collaborators []int    `json:"collaborators"`
+		data.Filters
+	}
+
+	v := validator.New()
+
+	qs := c.Request.URL.Query()
+
+	input.Title = app.readString(qs, "title", "")
+	input.Description = app.readString(qs, "description", "")
+	input.Ingredients = app.readCSV(qs, "ingredients", []string{})
+	input.Steps = app.readCSV(qs, "steps", []string{})
+	input.Author = app.readInt(qs, "author", 1, v)
+	input.Collaborators = app.read(qs, "author", []int{})
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
+	input.Filters.Sort = app.readString(qs, "sort", "id")
+
+	if !v.Valid() {
+		app.failedValidationResponse(c, v.Errors)
+		return
+	}
+
+	fmt.Fprintf(c.Writer, "%+v\n", input)
+}

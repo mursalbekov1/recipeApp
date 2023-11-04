@@ -17,6 +17,7 @@ func (app *application) routes() *gin.Engine {
 		v1.POST("/recipe", app.addRecipe)
 		v1.PATCH("/recipe/:id", app.updateRecipe)
 		v1.DELETE("/recipe/:id", app.deleteRecipe)
+		v1.GET("/recipe", app.getRecipeList)
 	}
 
 	return router

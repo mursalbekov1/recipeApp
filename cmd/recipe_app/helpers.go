@@ -101,6 +101,16 @@ func (app *application) readCSV(qs url.Values, key string, defaultValue []string
 	return strings.Split(csv, ",")
 }
 
+func (app *application) read(qs url.Values, key string, defaultValue []int) []int {
+	csv := qs.Get(key)
+
+	if csv == "" {
+		return defaultValue
+	}
+
+	return defaultValue
+}
+
 func (app *application) readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
 
 	s := qs.Get(key)
