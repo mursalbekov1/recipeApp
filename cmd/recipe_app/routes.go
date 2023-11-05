@@ -12,6 +12,8 @@ func (app *application) routes() *gin.Engine {
 
 	v1 := router.Group("/v1")
 	{
+		v1.Use(app.recoverPanic())
+		v1.Use(app.rateLimit())
 		v1.GET("/author/:id", app.getAuthor)
 		v1.GET("/recipe/:id", app.getRecipe)
 		v1.POST("/recipe", app.addRecipe)

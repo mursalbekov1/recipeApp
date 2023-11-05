@@ -46,3 +46,8 @@ func (app *application) editConflictResponse(c *gin.Context) {
 	message := "unable to update the record due to an edit conflict, please try again"
 	app.errorResponse(c, http.StatusOK, message)
 }
+
+func (app *application) rateLimitExceededResponse(c *gin.Context) {
+	message := "rate limit exceeded"
+	app.errorResponse(c, http.StatusTooManyRequests, message)
+}
