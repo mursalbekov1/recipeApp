@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
-	"net/http"
+	"net"
+	"sync"
+	"time"
 )
 
 func (app *application) recoverPanic() gin.HandlerFunc {
@@ -22,13 +24,50 @@ func (app *application) recoverPanic() gin.HandlerFunc {
 }
 
 func (app *application) rateLimit() gin.HandlerFunc {
-	limiter := rate.NewLimiter(2, 4)
+	type client struct {
+		limiter  *rate.Limiter
+		lastSeen time.Time
+	}
+
+	var (
+		mu      sync.Mutex
+		clients = make(map[string]*client)
+	)
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			mu.Lock()
+			for ip, client := range clients {
+				if time.Since(client.lastSeen) > 3*time.Minute {
+					delete(clients, ip)
+				}
+			}
+			mu.Unlock()
+		}
+	}()
 
 	return func(c *gin.Context) {
-		if !limiter.Allow() {
-			app.rateLimitExceededResponse(c)
-			c.AbortWithStatus(http.StatusTooManyRequests)
-			return
+		if app.config.limiter.enabled {
+			ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
+			if err != nil {
+				app.serverErrorResponse(c, err)
+				return
+			}
+			mu.Lock()
+			if _, found := clients[ip]; !found {
+				clients[ip] = &client{
+					limiter: rate.NewLimiter(rate.Limit(app.config.limiter.rps), app.config.limiter.burst),
+				}
+			}
+			clients[ip].lastSeen = time.Now()
+			if !clients[ip].limiter.Allow() {
+				mu.Unlock()
+				app.rateLimitExceededResponse(c)
+				c.Abort()
+				return
+			}
+			mu.Unlock()
 		}
 		c.Next()
 	}
