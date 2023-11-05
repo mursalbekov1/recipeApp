@@ -34,11 +34,19 @@ var (
 
 type Models struct {
 	Recipe interface {
-		Insert(movie *Recipe) error
+		Insert(recipe *Recipe) error
 		Get(id int64) (*Recipe, error)
-		Update(movie *Recipe) error
+		Update(recipe *Recipe) error
 		Delete(id int64) error
 		GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, Metadata, error)
+	}
+
+	Author interface {
+		Insert(author *Author) error
+		Get(id int64) (*Author, error)
+		Update(author *Author) error
+		Delete(id int64) error
+		GetAll(name string, email string) ([]*Author, Metadata, error)
 	}
 }
 

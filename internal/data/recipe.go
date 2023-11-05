@@ -210,3 +210,10 @@ func ValidateRecipe(v *validator.Validator, recipe *Recipe) {
 	//v.Check(recipe.Runtime != 0, "runtime", "must be provided")
 	//v.Check(recipe.Runtime > 0, "runtime", "must be a positive integer")
 }
+
+func ValidateAuthor(v *validator.Validator, author *Author) {
+	v.Check(author.Name != "", "name", "must be provided")
+	v.Check(author.Email != "", "email", "must be provided")
+	//v.Check(recipe.Runtime != 0, "runtime", "must be provided")
+	//v.Check(recipe.Runtime > 0, "runtime", "must be a positive integer")
+}
