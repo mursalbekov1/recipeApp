@@ -7,9 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"go_recipe/internal/data"
 	"go_recipe/internal/jsonlog"
-	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -67,21 +65,11 @@ func main() {
 		models: data.NewModels(db),
 	}
 
-	server := &http.Server{
-		Addr:         ":" + strconv.Itoa(cfg.port),
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 30 * time.Second,
+	err = app.serve()
+	if err != nil {
+		logger.PrintFatal(err, nil)
 	}
 
-	logger.PrintInfo("starting server", map[string]string{
-		"addr": server.Addr,
-		"env":  cfg.env,
-	})
-
-	err = server.ListenAndServe()
-	logger.PrintFatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {

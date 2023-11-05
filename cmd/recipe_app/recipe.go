@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+var version = "1.0.0"
+
 func (app *application) getRecipe(c *gin.Context) {
 	recipeID, err := app.readIDParam(c)
 	if err != nil {
@@ -234,4 +236,18 @@ func (app *application) getRecipeList(c *gin.Context) {
 		app.serverErrorResponse(c, err)
 	}
 
+}
+
+func (app *application) healthcheckHandler(c *gin.Context) {
+	env := Envelope{
+		"status": "available",
+		"system_info": map[string]string{
+			"environment": app.config.env,
+			"version":     version,
+		},
+	}
+	err := app.writeJSON(c.Writer, http.StatusOK, env, nil)
+	if err != nil {
+		app.serverErrorResponse(c, err)
+	}
 }
