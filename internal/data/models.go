@@ -48,10 +48,11 @@ type Models struct {
 		Delete(id int64) error
 		GetAll(name string, email string) ([]*Author, Metadata, error)
 	}
+	Users UserModel
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Recipe: RecipeModel{DB: db},
+		Users: UserModel{DB: db},
 	}
 }
