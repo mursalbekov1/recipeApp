@@ -11,7 +11,7 @@ import (
 func (app *application) registerUserHandler(c *gin.Context) {
 	var input struct {
 		Name     string `json:"name"`
-		Email    string `json:"email"`
+		Email    string `json:"gmail"`
 		Password string `json:"password"`
 	}
 
@@ -20,6 +20,7 @@ func (app *application) registerUserHandler(c *gin.Context) {
 		app.badRequestResponse(c, err)
 		return
 	}
+
 	user := &data.User{
 		Name:      input.Name,
 		Email:     input.Email,
