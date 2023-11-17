@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go_recipe/internal/data"
 	"go_recipe/internal/validator"
+	"log"
 	"net/http"
 )
 
@@ -53,6 +54,7 @@ func (app *application) registerUserHandler(c *gin.Context) {
 
 	err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
 	if err != nil {
+		log.Print("whyyy")
 		app.serverErrorResponse(c, err)
 		return
 	}

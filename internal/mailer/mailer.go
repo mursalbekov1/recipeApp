@@ -5,6 +5,7 @@ import (
 	"embed"
 	"github.com/go-mail/mail/v2"
 	"html/template"
+	"log"
 	"time"
 )
 
@@ -26,8 +27,9 @@ func New(host string, port int, username, password, sender string) Mailer {
 
 func (m Mailer) Send(recipient, templateFile string, data interface{}) error {
 
-	tmpl, err := template.New("email").ParseFS(templateFS, "../mailer/templates/"+templateFile)
+	tmpl, err := template.New("email").ParseFS(templateFS, "mailer/templates/"+templateFile)
 	if err != nil {
+		log.Print("Hello1")
 		return err
 	}
 
