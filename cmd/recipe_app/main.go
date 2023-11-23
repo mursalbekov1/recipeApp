@@ -9,6 +9,7 @@ import (
 	"go_recipe/internal/jsonlog"
 	"go_recipe/internal/mailer"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -40,6 +41,7 @@ type application struct {
 	logger *jsonlog.Logger
 	models data.Models
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
