@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go_recipe/internal/data"
 	"go_recipe/internal/validator"
-	"log"
 	"net/http"
 )
 
@@ -52,14 +51,14 @@ func (app *application) registerUserHandler(c *gin.Context) {
 		return
 	}
 
-	err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
-	if err != nil {
-		log.Print("whyyy")
-		app.serverErrorResponse(c, err)
-		return
-	}
+	go func() {
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		if err != nil {
+			app.logger.PrintError(err, nil)
+		}
+	}()
 
-	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"user": user}, nil)
+	err = app.writeJSON(c.Writer, http.StatusAccepted, Envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 	}

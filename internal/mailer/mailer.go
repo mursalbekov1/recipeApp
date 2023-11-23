@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+//go:embed "templates"
 var templateFS embed.FS
 
 type Mailer struct {
@@ -27,7 +28,7 @@ func New(host string, port int, username, password, sender string) Mailer {
 
 func (m Mailer) Send(recipient, templateFile string, data interface{}) error {
 
-	tmpl, err := template.New("email").ParseFS(templateFS, "mailer/templates/"+templateFile)
+	tmpl, err := template.New("email").ParseFS(templateFS, "templates/"+templateFile)
 	if err != nil {
 		log.Print("Hello1")
 		return err
