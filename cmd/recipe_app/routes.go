@@ -29,6 +29,7 @@ func (app *application) routes() *gin.Engine {
 		v1.GET("/healthcheck", app.healthcheckHandler)
 
 		v1.POST("/users", app.registerUserHandler)
+		v1.PUT("/users/activated", app.activateUserHandler)
 	}
 
 	return router
