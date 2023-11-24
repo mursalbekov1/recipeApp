@@ -14,6 +14,7 @@ func (app *application) routes() *gin.Engine {
 	{
 		v1.Use(app.recoverPanic())
 		v1.Use(app.rateLimit())
+		v1.Use(app.authenticate())
 
 		v1.GET("/author/:id", app.getAuthor)
 		v1.POST("/author", app.addAuthor)
@@ -30,6 +31,8 @@ func (app *application) routes() *gin.Engine {
 
 		v1.POST("/users", app.registerUserHandler)
 		v1.PUT("/users/activated", app.activateUserHandler)
+
+		v1.POST("/users/authentication", app.createAuthenticationTokenHandler)
 	}
 
 	return router

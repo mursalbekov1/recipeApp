@@ -1,10 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go_recipe/internal/data"
+	"go_recipe/internal/validator"
 	"golang.org/x/time/rate"
 	"net"
+	"strings"
 	"sync"
 	"time"
 )
@@ -69,6 +73,49 @@ func (app *application) rateLimit() gin.HandlerFunc {
 			}
 			mu.Unlock()
 		}
+		c.Next()
+	}
+}
+
+func (app *application) authenticate() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Add("Vary", "Authorization")
+
+		authorizationHeader := c.GetHeader("Authorization")
+
+		if authorizationHeader == "" {
+			app.contextSetUser(c.Request, data.AnonymousUser)
+			c.Next()
+			return
+		}
+
+		headerParts := strings.Split(authorizationHeader, " ")
+		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+			app.invalidAuthenticationTokenResponse(c)
+			return
+		}
+
+		token := headerParts[1]
+
+		v := validator.New()
+
+		if data.ValidateTokenPlaintext(v, token); !v.Valid() {
+			app.invalidAuthenticationTokenResponse(c)
+			return
+		}
+
+		user, err := app.models.Users.GetForToken(data.ScopeAuthentication, token)
+		if err != nil {
+			switch {
+			case errors.Is(err, data.ErrRecordNotFound):
+				app.invalidAuthenticationTokenResponse(c)
+			default:
+				app.serverErrorResponse(c, err)
+			}
+			return
+		}
+
+		app.contextSetUser(c.Request, user)
 		c.Next()
 	}
 }
