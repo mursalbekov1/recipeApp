@@ -7,7 +7,6 @@ import (
 	"go_recipe/internal/data"
 	"go_recipe/internal/validator"
 	"golang.org/x/time/rate"
-	"log"
 	"net"
 	"strings"
 	"sync"
@@ -85,7 +84,7 @@ func (app *application) authenticate() gin.HandlerFunc {
 		authorizationHeader := c.GetHeader("Authorization")
 
 		if authorizationHeader == "" {
-			app.contextSetUser(c.Request, data.AnonymousUser)
+			app.contextSetUser(c, data.AnonymousUser)
 			c.Next()
 			return
 		}
@@ -93,6 +92,7 @@ func (app *application) authenticate() gin.HandlerFunc {
 		headerParts := strings.Split(authorizationHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
 			app.invalidAuthenticationTokenResponse(c)
+			c.Abort()
 			return
 		}
 
@@ -102,6 +102,7 @@ func (app *application) authenticate() gin.HandlerFunc {
 
 		if data.ValidateTokenPlaintext(v, token); !v.Valid() {
 			app.invalidAuthenticationTokenResponse(c)
+			c.Abort()
 			return
 		}
 
@@ -113,30 +114,32 @@ func (app *application) authenticate() gin.HandlerFunc {
 			default:
 				app.serverErrorResponse(c, err)
 			}
+			c.Abort()
 			return
 		}
 
-		app.contextSetUser(c.Request, user)
+		app.contextSetUser(c, user)
 		c.Next()
 	}
 }
 
-func (app *application) requireActivatedUser(next gin.HandlerFunc) gin.HandlerFunc {
+func (app *application) requireActivatedUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user := app.contextGetUser(c)
 
-		log.Print(user)
+		user := app.contextGetUser(c)
 
 		if user.IsAnonymous() {
 			app.authenticationRequiredResponse(c)
+			c.Abort()
 			return
 		}
 
 		if !user.Activated {
 			app.inactiveAccountResponse(c)
+			c.Abort()
 			return
 		}
 
-		next(c)
+		c.Next()
 	}
 }
