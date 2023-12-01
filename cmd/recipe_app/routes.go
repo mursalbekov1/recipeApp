@@ -13,6 +13,7 @@ func (app *application) routes() *gin.Engine {
 	v1 := router.Group("/v1")
 	{
 		v1.Use(app.recoverPanic())
+		v1.Use(app.enableCORS())
 		v1.Use(app.rateLimit())
 		v1.Use(app.authenticate())
 

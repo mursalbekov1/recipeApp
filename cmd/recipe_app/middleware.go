@@ -8,6 +8,7 @@ import (
 	"go_recipe/internal/validator"
 	"golang.org/x/time/rate"
 	"net"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -173,4 +174,36 @@ func (app *application) requirePermission(code string, next gin.HandlerFunc) gin
 	}
 
 	return app.requireActivatedUser(fn)
+}
+
+func (app *application) enableCORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Add("Vary", "Origin")
+
+		c.Writer.Header().Add("Vary", "Access-Control-Request-Method")
+
+		origin := c.GetHeader("Origin")
+
+		if origin != "" {
+			for i := range app.config.cors.trustedOrigins {
+				if origin == app.config.cors.trustedOrigins[i] {
+					c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+
+					if c.Request.Method == http.MethodOptions && c.GetHeader("Access-Control-Request-Method") != "" {
+
+						c.Writer.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
+						c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+						c.Writer.WriteHeader(http.StatusOK)
+						return
+					}
+					break
+				}
+			}
+
+		}
+
+		c.Next()
+
+	}
 }

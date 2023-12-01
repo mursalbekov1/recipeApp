@@ -9,6 +9,7 @@ import (
 	"go_recipe/internal/jsonlog"
 	"go_recipe/internal/mailer"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -33,6 +34,9 @@ type config struct {
 		username string
 		password string
 		sender   string
+	}
+	cors struct {
+		trustedOrigins []string
 	}
 }
 
@@ -62,6 +66,11 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "3e55295914c75f", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "9c5b4e4dc98e8d", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@recipe_app>", "SMTP sender")
+
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+		cfg.cors.trustedOrigins = strings.Fields(val)
+		return nil
+	})
 
 	flag.Parse()
 
