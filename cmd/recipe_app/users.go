@@ -52,6 +52,12 @@ func (app *application) registerUserHandler(c *gin.Context) {
 		return
 	}
 
+	err = app.models.Permissions.AddForUser(user.ID, "recipe:read")
+	if err != nil {
+		app.serverErrorResponse(c, err)
+		return
+	}
+
 	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
 		app.serverErrorResponse(c, err)

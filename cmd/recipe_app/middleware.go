@@ -123,9 +123,8 @@ func (app *application) authenticate() gin.HandlerFunc {
 	}
 }
 
-func (app *application) requireActivatedUser() gin.HandlerFunc {
+func (app *application) requireAuthenticatedUser(next gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		user := app.contextGetUser(c)
 
 		if user.IsAnonymous() {
@@ -133,6 +132,14 @@ func (app *application) requireActivatedUser() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		next(c)
+	}
+}
+
+func (app *application) requireActivatedUser(next gin.HandlerFunc) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+
+		user := app.contextGetUser(c)
 
 		if !user.Activated {
 			app.inactiveAccountResponse(c)
@@ -140,6 +147,30 @@ func (app *application) requireActivatedUser() gin.HandlerFunc {
 			return
 		}
 
-		c.Next()
+		next(c)
 	}
+
+	return app.requireAuthenticatedUser(fn)
+}
+
+func (app *application) requirePermission(code string, next gin.HandlerFunc) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+
+		user := app.contextGetUser(c)
+
+		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		if err != nil {
+			app.serverErrorResponse(c, err)
+			return
+		}
+
+		if !permissions.Include(code) {
+			app.notPermittedResponse(c)
+			return
+		}
+
+		next(c)
+	}
+
+	return app.requireActivatedUser(fn)
 }

@@ -71,3 +71,8 @@ func (app *application) inactiveAccountResponse(c *gin.Context) {
 	message := "your user account must be activated to access this resource"
 	app.errorResponse(c, http.StatusForbidden, message)
 }
+
+func (app *application) notPermittedResponse(c *gin.Context) {
+	message := "your user account doesn't have the necessary permissions to access this resource"
+	app.errorResponse(c, http.StatusForbidden, message)
+}
