@@ -21,11 +21,11 @@ func (app *application) routes() *gin.Engine {
 		v1.PATCH("/author/:id", app.updateAuthor)
 		v1.DELETE("/author/:id", app.deleteAuthor)
 
-		v1.GET("/recipe/:id", app.getRecipe)
-		v1.POST("/recipe", app.addRecipe)
-		v1.PATCH("/recipe/:id", app.updateRecipe)
-		v1.DELETE("/recipe/:id", app.deleteRecipe)
-		v1.GET("/recipe", app.getRecipeList)
+		v1.GET("/recipe/:id", app.requireActivatedUser(app.getRecipe))
+		v1.POST("/recipe", app.requireActivatedUser(app.addRecipe))
+		v1.PATCH("/recipe/:id", app.requireActivatedUser(app.updateRecipe))
+		v1.DELETE("/recipe/:id", app.requireActivatedUser(app.deleteRecipe))
+		v1.GET("/recipe", app.requireActivatedUser(app.getRecipeList))
 
 		v1.GET("/healthcheck", app.healthcheckHandler)
 

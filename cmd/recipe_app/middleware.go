@@ -7,6 +7,7 @@ import (
 	"go_recipe/internal/data"
 	"go_recipe/internal/validator"
 	"golang.org/x/time/rate"
+	"log"
 	"net"
 	"strings"
 	"sync"
@@ -117,5 +118,25 @@ func (app *application) authenticate() gin.HandlerFunc {
 
 		app.contextSetUser(c.Request, user)
 		c.Next()
+	}
+}
+
+func (app *application) requireActivatedUser(next gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user := app.contextGetUser(c)
+
+		log.Print(user)
+
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(c)
+			return
+		}
+
+		if !user.Activated {
+			app.inactiveAccountResponse(c)
+			return
+		}
+
+		next(c)
 	}
 }

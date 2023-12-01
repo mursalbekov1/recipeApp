@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"go_recipe/internal/data"
 	"net/http"
 )
@@ -15,10 +16,7 @@ func (app *application) contextSetUser(r *http.Request, user *data.User) *http.R
 	return r.WithContext(ctx)
 }
 
-func (app *application) contextGetUser(r *http.Request) *data.User {
-	user, ok := r.Context().Value(userContextKey).(*data.User)
-	if !ok {
-		panic("missing user value in request context")
-	}
+func (app *application) contextGetUser(c *gin.Context) *data.User {
+	user, _ := c.Request.Context().Value(userContextKey).(*data.User)
 	return user
 }

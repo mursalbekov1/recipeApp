@@ -103,10 +103,9 @@ func (app *application) activateUserHandler(c *gin.Context) {
 		}
 		return
 	}
-	// Update the user's activation status.
+
 	user.Activated = true
-	// Save the updated user record in our database, checking for any edit conflicts in
-	// the same way that we did for our movie records.
+
 	err = app.models.Users.Update(user)
 	if err != nil {
 		switch {
@@ -117,14 +116,13 @@ func (app *application) activateUserHandler(c *gin.Context) {
 		}
 		return
 	}
-	// If everything went successfully, then we delete all activation tokens for the
-	// user.
+
 	err = app.models.Tokens.DeleteAllForUser(data.ScopeActivation, user.ID)
 	if err != nil {
 		app.serverErrorResponse(c, err)
 		return
 	}
-	// Send the updated user details to the client in a JSON response.
+
 	err = app.writeJSON(c.Writer, http.StatusOK, Envelope{"user": user}, nil)
 	if err != nil {
 		app.serverErrorResponse(c, err)
