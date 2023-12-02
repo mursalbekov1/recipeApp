@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
 	_ "github.com/lib/pq"
 	"go_recipe/internal/data"
 	"go_recipe/internal/jsonlog"
 	"go_recipe/internal/mailer"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -51,9 +53,14 @@ type application struct {
 func main() {
 
 	var cfg config
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	cfg.db.dsn = os.Getenv("GREENLIGHT_DB_DSN")
+	cfg.env = "dev"
+	portEnv, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		return
+	}
+	cfg.port = portEnv
+
+	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("GREENLIGHT_DB_DSN"), "PostgreSQL DSN")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
@@ -76,8 +83,7 @@ func main() {
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
-	time.Sleep(15 * time.Second)
-
+	fmt.Println(cfg.db.dsn)
 	db, err := openDB(cfg)
 	if err != nil {
 		logger.PrintFatal(err, nil)
