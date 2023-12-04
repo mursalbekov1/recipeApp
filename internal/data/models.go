@@ -18,15 +18,6 @@ type Recipe struct {
 	Version       int64     `json:"version"`
 }
 
-type Author struct {
-	ID             int64   `json:"id"`
-	Name           string  `json:"name"`
-	Email          string  `json:"email"`
-	Password       string  `json:"-"`
-	Recipes        []int64 `json:"recipes"`
-	RecipeAccesses []int64 `json:"access_recipes"`
-}
-
 var (
 	ErrRecordNotFound = errors.New("record not found")
 	ErrEditConflict   = errors.New("edit conflict")
@@ -41,13 +32,6 @@ type Models struct {
 		GetAll(title string, ingredients []string, filters Filters) ([]*Recipe, Metadata, error)
 	}
 
-	Author interface {
-		Insert(author *Author) error
-		Get(id int64) (*Author, error)
-		Update(author *Author) error
-		Delete(id int64) error
-		GetAll(name string, email string) ([]*Author, Metadata, error)
-	}
 	Users       UserModel
 	Tokens      TokenModel
 	Permissions PermissionModel

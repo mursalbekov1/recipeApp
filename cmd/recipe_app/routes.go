@@ -17,11 +17,6 @@ func (app *application) routes() *gin.Engine {
 		v1.Use(app.rateLimit())
 		v1.Use(app.authenticate())
 
-		v1.GET("/author/:id", app.getAuthor)
-		v1.POST("/author", app.addAuthor)
-		v1.PATCH("/author/:id", app.updateAuthor)
-		v1.DELETE("/author/:id", app.deleteAuthor)
-
 		v1.GET("/recipe/:id", app.requirePermission("recipe:read", app.getRecipe))
 		v1.POST("/recipe", app.requirePermission("recipe:write", app.addRecipe))
 		v1.PATCH("/recipe/:id", app.requirePermission("recipe:write", app.updateRecipe))
