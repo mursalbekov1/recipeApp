@@ -78,7 +78,11 @@ func (app *application) addRecipe(c *gin.Context) {
 	headers := make(http.Header)
 	headers.Set("Location", fmt.Sprintf("/v1/recipe/%d", recipe.ID))
 
-	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"recipe": recipe}, headers)
+
+	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"Recipe": recipe}, headers)
+
+	//c.JSON(http.StatusOK, gin.H{"data": input})
+
 }
 
 func (app *application) updateRecipe(c *gin.Context) {
@@ -235,16 +239,16 @@ func (app *application) getRecipeList(c *gin.Context) {
 
 }
 
-func (app *application) healthcheckHandler(c *gin.Context) {
-	env := Envelope{
-		"status": "available",
-		"system_info": map[string]string{
-			"environment": app.config.env,
-			"version":     version,
-		},
-	}
-	err := app.writeJSON(c.Writer, http.StatusOK, env, nil)
-	if err != nil {
-		app.serverErrorResponse(c, err)
-	}
-}
+//func (app *application) healthcheckHandler(c *gin.Context) {
+//	env := Envelope{
+//		"status": "available",
+//		"system_info": map[string]string{
+//			"environment": app.config.env,
+//			"version":     version,
+//		},
+//	}
+//	err := app.writeJSON(c.Writer, http.StatusOK, env, nil)
+//	if err != nil {
+//		app.serverErrorResponse(c, err)
+//	}
+//}

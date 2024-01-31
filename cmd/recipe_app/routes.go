@@ -23,7 +23,7 @@ func (app *application) routes() *gin.Engine {
 		v1.DELETE("/recipe/:id", app.requirePermission("recipe:write", app.deleteRecipe))
 		v1.GET("/recipe", app.requirePermission("recipe:read", app.getRecipeList))
 
-		v1.GET("/healthcheck", app.healthcheckHandler)
+		//v1.GET("/healthcheck", app.healthcheckHandler)
 
 		v1.POST("/users", app.registerUserHandler)
 		v1.PUT("/users/activated", app.activateUserHandler)
