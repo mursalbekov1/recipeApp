@@ -67,6 +67,7 @@ func (app *application) authenticationRequiredResponse(c *gin.Context) {
 	message := "you must be authenticated to access this resource"
 	app.errorResponse(c, http.StatusUnauthorized, message)
 }
+
 func (app *application) inactiveAccountResponse(c *gin.Context) {
 	message := "your user account must be activated to access this resource"
 	app.errorResponse(c, http.StatusForbidden, message)

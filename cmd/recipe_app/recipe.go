@@ -78,6 +78,7 @@ func (app *application) addRecipe(c *gin.Context) {
 	headers := make(http.Header)
 	headers.Set("Location", fmt.Sprintf("/v1/recipe/%d", recipe.ID))
 
+
 	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"Recipe": recipe}, headers)
 
 	//c.JSON(http.StatusOK, gin.H{"data": input})
