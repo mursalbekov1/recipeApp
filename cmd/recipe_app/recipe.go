@@ -79,9 +79,6 @@ func (app *application) addRecipe(c *gin.Context) {
 	headers.Set("Location", fmt.Sprintf("/v1/recipe/%d", recipe.ID))
 
 	err = app.writeJSON(c.Writer, http.StatusCreated, Envelope{"recipe": recipe}, headers)
-
-	//c.JSON(http.StatusOK, gin.H{"data": input})
-
 }
 
 func (app *application) updateRecipe(c *gin.Context) {
